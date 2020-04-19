@@ -1,0 +1,223 @@
+﻿body {
+    background: url("../../img/background.jpg");
+    font-family: Open Sans, sans-serif;
+    background-repeat: no-repeat;
+    background-size: cover;
+    padding-bottom: 15px;
+    font-size: 14px;
+}
+
+.logo {
+    text-align: center;
+}
+
+    .logo a {
+        text-decoration: none;
+        margin-left: 0.5em;
+        font-size: 84px;
+        color: #ffffff;
+    }
+
+    .logo .version {
+        font-family: Open Sans, sans-serif;
+        vertical-align: bottom;
+        margin-left: -20px;
+        line-height: 4.5;
+        font-size: 14px;
+    }
+
+.install-note {
+    background: rgba(204, 255, 201, 0.35);
+}
+
+.sidebar-search {
+    background: rgba(255, 255, 255, 0.7);
+    margin-bottom: 20px;
+    border-style: none;
+    text-align: center;
+    color: #000000;
+    padding: 7px;
+    width: 100%;
+}
+
+.sidebar ul {
+    background: rgba(255, 255, 255, 0.93);
+    font-weight: bold;
+    list-style: none;
+    padding: 0;
+}
+
+    .sidebar ul a {
+        padding: 5px 12px;
+        color: #777777;
+        display: block;
+    }
+
+        .sidebar ul a:hover,
+        .sidebar ul a:focus {
+            background: #ffffff;
+            color: #448fba;
+        }
+
+.sidebar li + li {
+    border-top: 1px solid #b8b8b8;
+}
+
+.widget {
+    margin-top: 20px;
+}
+
+.widget-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 16px;
+    color: #ffffff;
+    display: flex;
+}
+
+    .widget-header > span {
+        padding-left: 10px;
+        flex: 1;
+    }
+
+.widget-buttons {
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+    .widget-buttons a,
+    .widget-buttons span {
+        color: #ffffff;
+    }
+
+        .widget-buttons a:hover,
+        .widget-buttons span:hover {
+            color: #dddddd;
+        }
+
+.widget-content {
+    background: rgba(255, 255, 255, 0.93);
+    padding: 2px;
+}
+
+.action {
+    width: 1px;
+}
+
+.docs pre {
+    padding: 7px 10px;
+}
+
+.docs .row {
+    margin-bottom: 10px;
+}
+
+.docs .widget-header {
+    background: #62bd6b;
+}
+
+.console .widget-header {
+    background: #898989;
+}
+
+.example .widget-header {
+    background: #8c86d7;
+}
+
+.example .widget-content {
+    background: #ffffff;
+}
+
+.code .widget-header {
+    background: #479ae2;
+    margin-top: 5px;
+}
+
+p {
+    margin: 10px 0;
+}
+
+pre {
+    border: 1px solid #e2e2e2;
+    background: #ffffff;
+    padding: 0 15px;
+    margin: 0;
+}
+
+    pre .com {
+        font-weight: bold;
+        color: #15a915;
+    }
+
+    pre .cls {
+        color: #2aadba;
+    }
+
+    pre .kwd {
+        color: #084dff;
+    }
+
+    pre .str {
+        color: #cc6500;
+    }
+
+    pre .num {
+        color: #b138e0;
+    }
+
+.diff-add {
+    user-select: none;
+}
+
+.grid-search {
+    background-color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin-right: 10px;
+    font-size: 1em;
+    padding-left: 50px 0;
+    color: #000000;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 100px;
+    width: 1000px;
+}
+
+.working {
+    background-color: #ecffec;
+}
+
+.table-hover tr {
+    cursor: pointer;
+}
+
+.table-hover .working:hover {
+    background-color: #d7fdd7;
+}
+
+.selected,
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.mvc-grid th {
+    text-align: left !important;
+}
+
+.mvc-grid-pager .active {
+    background-color: rgba(12, 123, 220, 0.72);
+    border-color: #3280c1;
+}
+
+.mvc-grid-extended-pager {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+}
+
+.mvc-grid-pager button {
+    margin: 0.5em 0 0;
+}
+
+.mvc-grid-extended-pager .mvc-grid-pager-extension {
+    padding: 0 5px;
+}

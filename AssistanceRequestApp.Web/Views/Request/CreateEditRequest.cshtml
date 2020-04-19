@@ -1,0 +1,219 @@
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@model EditRequestModel;
+@{
+    ViewData["Title"] = "CreateEditRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style type="text/css">
+
+
+
+    .clsTxt {
+        width: 200px;
+        min-height: 25px;
+        max-height: 200px;
+        resize: none;
+    }
+</style>
+<script>
+    function resizeTextBox(txt) {
+        txt.style.height = "1px";
+        txt.style.height = (1 + txt.scrollHeight) + "px";
+    }
+    function changeStatus() {
+        var valueSelected = document.getElementById("Status").value;
+        //alert(valueSelected);
+        if (valueSelected == "Closed") {
+            $("#EstimatedHours").removeAttr("disabled");
+            $("#DateCompleted").removeAttr("disabled");
+            $("#ActualHours").removeAttr("disabled");
+            $("#ResolutionComments").removeAttr("disabled");
+        }
+        else {
+            $("#EstimatedHours").attr("disabled", "disabled");
+            $("#DateCompleted").attr("disabled", "disabled");
+            $("#ActualHours").attr("disabled", "disabled");
+            $("#ResolutionComments").attr("disabled", "disabled");
+        }
+    }
+</script>
+
+<div class="widget code col">
+    <div class="widget-header">
+        <div class="fa fa-code"></div>
+        <span>Add/Edit Request</span>
+    </div>
+    <div class="widget-content">
+        @using (Html.BeginForm())
+        {
+            <div class="form-horizontal">
+                <div class="card-header bg-info text-white d-flex">
+                    <div class="ml-auto">
+                        @Html.ActionLink("Back to List", "Index", "Request", null, new { @class = "btn btn-primary" })
+                        <button class="btn btn-success" id="btnSubmit" type="submit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="widget-header">
+                        <div class="fa fa-bars">
+                            <span>Contact Information</span>
+                        </div>
+                    </div>
+                    <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                        <tr>
+                            <td>
+                                <label asp-for="Name" class="lable-control"></label>
+                            </td>
+                            <td>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </td>
+                            <td><label asp-for="EmployeeId" class="control-label"></label></td>
+                            <td>
+                                <input asp-for="EmployeeId" class="form-control" />
+                                <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label asp-for="EmailId" class="control-label"></label></td>
+                            <td>
+                                <input asp-for="EmailId" class="form-control" />
+                                <span asp-validation-for="EmailId" class="text-danger"></span>
+                            </td>
+                            <td><label asp-for="Phone" class="control-label"></label></td>
+                            <td>
+                                <input asp-for="Phone" class="form-control" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="widget-header">
+                        <div class="fa fa-bars">
+                            <span>Request Information</span>
+                        </div>
+                    </div>
+                    <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                        <tr>
+                            <td>
+                                <label asp-for="ApplicationName" class="lable-control"></label>
+                            </td>
+                            <td>
+                                <input asp-for="ApplicationName" class="form-control" />
+                                <span asp-validation-for="ApplicationName" class="text-danger"></span>
+                            </td>
+                            <td><label asp-for="NatureofRequest" class="control-label"></label></td>
+                            <td>
+                                <select data-val="true" asp-for="NatureofRequest" class="form-control">
+                                    <option value=""></option>
+                                    <option value="Request Assistance">Request Assistance</option>
+                                    <option value="Request Information">Request Information</option>
+                                    <option value="Request Change">Request Change</option>
+                                    <option value="Suggest New Feature">Suggest New Feature</option>
+                                </select>
+                                <span asp-validation-for="NatureofRequest" class="text-danger"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label asp-for="RelatedEnvironment" class="control-label"></label></td>
+                            <td colspan="3">
+                                <select data-val="true" asp-for="RelatedEnvironment" class="form-control">
+                                    <option value=""></option>
+                                    <option value=".NET">.NET</option>
+                                    <option value="JAVA">JAVA</option>
+                                    <option value="MainFrame">MainFrame</option>
+                                    <option value="Python">Python</option>
+                                </select>
+                                <span asp-validation-for="RelatedEnvironment" class="text-danger"></span>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td><label asp-for="DescriptionofRequest" class="control-label"></label></td>
+                            <td colspan="3">
+                                <textarea class="form-control" asp-for="DescriptionofRequest" onkeyup="resizeTextBox(this)"></textarea>
+                                <span asp-validation-for="DescriptionofRequest" class="text-danger"></span>
+                            </td>
+                        </tr>
+                    </table>
+                    @if (Model.Id > 0)
+                    {
+                        <div class="widget-header">
+                            <div class="fa fa-bars">
+                                <span>Assignment & Resolutions</span>
+                            </div>
+                        </div>
+                        <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                            <tr>
+
+                                <td><label asp-for="AssignedTo" class="control-label"></label></td>
+                                <td>
+                                    <input asp-for="AssignedTo" class="form-control" />
+                                    <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                                </td>
+                                <td><label asp-for="Status" class="control-label"></label></td>
+                                <td>
+                                    <select data-val="true" asp-for="Status" class="form-control" onchange="changeStatus()">
+                                        <option value=""></option>
+                                        <option value="Submitted">Submitted</option>
+                                        <option value="Open">Open</option>
+                                        <option value="InProgress">InProgress</option>
+                                        <option value="Closed">Closed</option>
+                                        <option value="Withdrawn">Withdrawn</option>
+                                        <option value="Rejected">Rejected</option>
+                                    </select>
+                                    <span asp-validation-for="Status" class="text-danger"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label asp-for="DateAssigned" class="lable-control"></label>
+                                </td>
+                                <td>
+                                    <input asp-for="DateAssigned" class="form-control" />
+                                    <span asp-validation-for="DateAssigned" class="text-danger"></span>
+                                </td>
+
+                                <td>
+                                    <label asp-for="EstimatedHours" class="lable-control"></label>
+                                </td>
+                                <td>
+                                    <input asp-for="EstimatedHours" class="form-control" disabled="@(Model.Status.Equals("Closed") ? null: "disabled")" />
+                                    <span asp-validation-for="EstimatedHours" class="text-danger"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label asp-for="DateCompleted" class="lable-control"></label>
+                                </td>
+                                <td>
+                                    <input asp-for="DateCompleted" class="form-control" disabled="@(Model.Status.Equals("Closed") ? null: "disabled")" />
+                                    <span asp-validation-for="DateCompleted" class="text-danger"></span>
+                                </td>
+
+                                <td>
+                                    <label asp-for="ActualHours" class="lable-control"></label>
+                                </td>
+                                <td>
+                                    <input asp-for="ActualHours" class="form-control" disabled="@(Model.Status.Equals("Closed") ? null: "disabled")" />
+                                    <span asp-validation-for="ActualHours" class="text-danger"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label asp-for="ResolutionComments" class="lable-control"></label>
+                                </td>
+                                <td colspan="3">
+                                    <textarea class="form-control" asp-for="ResolutionComments" onkeyup="resizeTextBox(this)" disabled="@(Model.Status.Equals("Closed") ? null: "disabled")"></textarea>
+                                    <span asp-validation-for="ResolutionComments" class="text-danger"></span>
+                                </td>
+                            </tr>
+                        </table>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

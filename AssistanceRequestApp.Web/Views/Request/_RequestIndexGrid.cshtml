@@ -1,0 +1,36 @@
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@using AssistanceRequestApp.Common;
+@model List<DetailRequestModel>
+@using NonFactors.Mvc.Grid;
+@(Html
+    .Grid(Model)
+    .Build(columns =>
+    {
+
+        columns.Add(model => model.Id).Titled("Id");
+        columns.Add(model => model.Name).Titled("Name");
+        columns.Add(model => model.EmployeeId).Titled("EmployeeId");
+        columns.Add(model => model.EmailId).Titled("EmailId");
+        columns.Add(model => model.Status).Titled("Status").UsingFilterOptions(new[] { new SelectListItem(), new SelectListItem { Value = "Submitted", Text = "Submitted" }, new SelectListItem { Value = "Open", Text = "Open" }, new SelectListItem { Value = "InProgress", Text = "InProgress" }, new SelectListItem { Value = "Closed", Text = "Closed" }, new SelectListItem { Value = "Withdrawn", Text = "Withdrawn" }, new SelectListItem { Value = "Rejected", Text = "Rejected" } });
+
+        columns.Add(Model => Html.ActionLink("Details", "DetailRequest", "Request", new { id = Model.Id }, new
+        {
+            @class = "btn btn-primary"
+        })).Titled("Action").Encoded(false).Css("action");
+
+    })
+.UsingUrl(Url.Action("Index", "Request"))
+.Empty(AppConstants.NoDataFound)
+ .Pageable(pager =>
+ {
+     pager.PageSizes = new Dictionary<Int32, String> { { 0, "All" }, { 5, "5" }, { 10, "10" } };
+     pager.ShowPageSizes = true;
+     pager.PagesToDisplay = 5;
+     pager.CurrentPage = 1;
+     pager.RowsPerPage = 10;
+ })
+            .Filterable()
+            .Sortable()
+            .AppendCss("tablegrid-hover table-striped")
+            .Id("remaining-table")
+)

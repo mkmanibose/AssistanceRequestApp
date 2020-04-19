@@ -1,0 +1,33 @@
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@model List<DetailRequestModel>
+@using Microsoft.AspNetCore.Mvc.Rendering;
+
+<div class="widget code col">
+    <div class="widget-header">
+        <div class="fa fa-code"></div>
+        <span>Request</span>
+    </div>
+    <div class="widget-content">
+        <div class="card-header bg-info text-white d-flex">
+            <input id="GridSearch" class="grid-search text-white ml-auto" style="color: Black!important;" placeholder="Search..." />
+            <a id="createEditBookModal" href="@Url.Action("CreateEditRequest","Request")" class="btn btn-success text-white">
+                <span class="glyphicon glyphicon-plus"></span> Request
+            </a>
+        </div>
+        <div class="widget-header">
+            <div class="fa fa-bars">
+                <span>List Requests</span>
+            </div>
+        </div>
+        <div class="widget-content">
+            @await Html.PartialAsync("_RequestIndexGrid")
+        </div>
+        <script>
+            document.getElementById("GridSearch").addEventListener("input", function () {
+                const grid = new MvcGrid(document.querySelector(".mvc-grid"));
+                grid.url.searchParams.set("search", this.value);
+                grid.reload();
+            });
+        </script>
+    </div>
+</div>

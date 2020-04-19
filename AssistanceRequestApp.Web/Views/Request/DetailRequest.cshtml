@@ -1,0 +1,161 @@
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@model DetailRequestModel;
+@{
+    ViewData["Title"] = "DetailRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="widget code col">
+    <div class="widget-header">
+        <div class="fa fa-code"></div>
+        <span>Details Request</span>
+    </div>
+    <div class="widget-content">
+        @using (Html.BeginForm())
+        {
+            <div class="form-horizontal">
+                <div class="card-header bg-info text-white d-flex">
+                    <div class="ml-auto">
+                        @Html.ActionLink("Back to List", "Index", "Request", null, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Edit", "CreateEditRequest", "Request", new { id = ViewContext.RouteData.Values["id"] }, new { @class = "btn btn-success" })
+                        @Html.ActionLink("Delete", "DeleteRequest", "Request", new { id = ViewContext.RouteData.Values["id"] }, new { @class = "btn btn-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="widget-header">
+                        <div class="fa fa-bars">
+                            <span>Contact Information</span>
+                        </div>
+                    </div>
+                    <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                        <tr>
+                            <td>
+                                <label class="lable-control">Name:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Name, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">EmployeeId:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.EmployeeId, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">EmailId:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.EmailId, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">Phone:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Phone, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="widget-header">
+                        <div class="fa fa-bars">
+                            <span>Request Information</span>
+                        </div>
+                    </div>
+                    <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                        <tr>
+                            <td>
+                                <label class="lable-control">ApplicationName:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.ApplicationName, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">NatureofRequest:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.NatureofRequest, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">RelatedEnvironment:</label>
+                            </td>
+                            <td colspan="3">
+                                @Html.DisplayFor(model => model.RelatedEnvironment, new { @class = "form-control" })
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">DescriptionofRequest:</label>
+                            </td>
+                            <td colspan="3">
+                                @Html.DisplayFor(model => model.DescriptionofRequest, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="widget-header">
+                        <div class="fa fa-bars">
+                            <span>Assignment & Resolutions</span>
+                        </div>
+                    </div>
+                    <table border="0" width="100%" cellpadding="15" cellspacing="10">
+                        <tr>
+                            <td>
+                                <label class="lable-control">AssignedTo:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.AssignedTo, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">Status:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.Status, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">DateAssigned:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.DateAssigned, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">EstimatedHours:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.EstimatedHours, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">DateCompleted:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.DateCompleted, new { @class = "form-control" })
+                            </td>
+                            <td>
+                                <label class="lable-control">ActualHours:</label>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(model => model.ActualHours, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label class="lable-control">ResolutionComments:</label>
+                            </td>
+                            <td colspan="3">
+                                @Html.DisplayFor(model => model.ResolutionComments, new { @class = "form-control" })
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+</div>
