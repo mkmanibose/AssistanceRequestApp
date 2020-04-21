@@ -1,3 +1,287 @@
-﻿@{
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@using System;
+@{
+    decimal submittedPercentage = 0.0M;
+    string submitDate = string.Empty;
+
+    decimal CalculateSubmitPercentage(string status)
+    {
+        if (!string.IsNullOrEmpty(status))
+        {
+            submittedPercentage = Convert.ToDecimal(Model.Where(s => s.Status.Equals(status)).Count().ToString()) /
+Convert.ToDecimal(Model.Count().ToString()) * 100;
+        }
+        return submittedPercentage;
+    }
+
+    string CalculateSubmitDate(string status)
+    {
+        if (!string.IsNullOrEmpty(status))
+        {
+            DateTime createdDate = Convert.ToDateTime(Model.Where(s => s.Status.Equals(status))
+                  .OrderByDescending(s => s.CreatedDate)
+                  .Select(s => s.CreatedDate).FirstOrDefault());
+            if (createdDate != null)
+            {
+                TimeSpan diffDate = DateTime.Now.Date.Subtract(createdDate.Date);
+                submitDate = string.Empty;
+                if (diffDate.Days >= 260)
+                {
+                    submitDate = "Since Last Year";
+                }
+                else if (diffDate.Days >= 32 && diffDate.Days <= 259)
+                {
+                    submitDate = "Since Month Ago";
+                }
+                else if (diffDate.Days >= 30 && diffDate.Days <= 31)
+                {
+                    submitDate = "Since Last Month";
+                }
+                else if (diffDate.Days >= 8 && diffDate.Days < 30)
+                {
+                    submitDate = "Since Week Ago";
+                }
+                else if (diffDate.Days > 1 && diffDate.Days < 8)
+                {
+                    submitDate = "Since Last Week";
+                }
+                else if (diffDate.Days == 1)
+                {
+                    submitDate = "Since Yesterday";
+                }
+                else if (diffDate.Days == 0)
+                {
+                    submitDate = "Since Today";
+                }
+                //submitDate = diffDate.Days.ToString();
+            }
+        }
+        return submitDate;
+    }
+}
+@model List<DetailRequestModel>
+@{
     ViewData["Title"] = "Home Page";
 }
+
+<style>
+
+
+    .Row {
+        display: table;
+        width: 100%; /*Optional*/
+        table-layout: fixed; /*Optional*/
+        border-spacing: 10px; /*Optional*/
+    }
+
+    .Column {
+        display: table-cell;
+        background-color: white;
+        border: 2px solid rgb(0, 0, 0);
+        /*border-radius: 100px;*/
+    }
+</style>
+
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<div class="widget code col">
+    <div class="widget-header">
+        <div class="fa fa-code"></div>
+        <span>Dashboard</span>
+    </div>
+    <div class="widget-content">
+        <div class="widget-header">
+            <div class="fa fa-bars">
+                <span>Request Status</span>
+            </div>
+        </div>
+        <div class="Row">
+            <div class="Column">
+                <!-- Card stats -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">Submitted</h5>
+                            <span class="h2 font-weight-bold mb-0">@Model.Where(s => s.Status.Equals("Submitted")).Count().ToString()</span>
+                        </div>
+                        <div class="icon icon-shape bg-danger text-white rounded-circle shadow">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted text-sm">
+                        <span class="text-success mr-2">
+                            <i class="fa fa-arrow-up"></i>@CalculateSubmitPercentage("Submitted").ToString("0.##")%
+                        </span>
+
+                        <span class="text-nowrap">
+                            @CalculateSubmitDate("Submitted")
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="Column">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">Open</h5>
+                            <span class="h2 font-weight-bold mb-0">@Model.Where(s => s.Status.Equals("Open")).Count().ToString()</span>
+                        </div>
+                        <div class="icon icon-shape bg-warning text-white rounded-circle shadow">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted text-sm">
+                        <span class="text-success mr-2">
+                            <i class="fas fa-arrow-down"></i>@CalculateSubmitPercentage("Open").ToString("0.##")%
+                        </span>
+                        <span class="text-nowrap">
+                            @CalculateSubmitDate("Open")
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="Column">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">InProgress</h5>
+                            <span class="h2 font-weight-bold mb-0">@Model.Where(s => s.Status.Equals("InProgress")).Count().ToString()</span>
+                        </div>
+                        <div class="icon icon-shape bg-yellow text-white rounded-circle shadow">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted text-sm">
+                        <span class="text-success mr-2">
+                            <i class="fas fa-arrow-down"></i>@CalculateSubmitPercentage("InProgress").ToString("0.##")%
+                        </span>
+                        <span class="text-nowrap">
+                            @CalculateSubmitDate("InProgress")
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="Column">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col">
+                            <h5 class="card-title text-uppercase text-muted mb-0">Closed</h5>
+                            <span class="h2 font-weight-bold mb-0">@Model.Where(s => s.Status.Equals("Closed")).Count().ToString()</span>
+                        </div>
+                        <div class="icon icon-shape bg-info text-white rounded-circle shadow">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                    </div>
+                    <p class="mt-3 mb-0 text-muted text-sm">
+                        <span class="text-success mr-2">
+                            <i class="fas fa-arrow-up"></i>@CalculateSubmitPercentage("Closed").ToString("0.##")%
+                        </span>
+                        <span class="text-nowrap">
+                            @CalculateSubmitDate("Closed")
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="piechart_div"></div>
+    <div id="columnChart_div"></div>
+
+    <script type="text/javascript">
+        google.charts.load('current', {
+            packages: ['corechart', 'bar']
+        });
+        //PieChart Logics
+        google.charts.setOnLoadCallback(LoadRequestPieChartData);
+        function LoadRequestPieChartData() {
+            $.ajax({
+                url: 'Home/RelatedEnvironmentPieChart',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    var err = eval("(" + xhr.responseText + ")");
+                    toastr.error(err.message);
+                },
+                success: function (data) {
+                    RelatedEnvironmentPieChart(data);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function RelatedEnvironmentPieChart(data) {
+            var dataArray = [
+                ['Skills', 'Total Nos']
+            ];
+            $.each(data, function (i, item) {
+                dataArray.push([item.environment, item.noCount]);
+            });
+            var data = google.visualization.arrayToDataTable(dataArray);
+            var options = {
+                title: 'Related Environment Skills',
+                chartArea: {
+                    width: '50%'
+                },
+                colors: ['#b0120a', '#7b1fa2', '#ffab91', '#d95f02'],
+                hAxis: {
+                    title: 'Skills',
+                    minValue: 0
+                },
+                vAxis: {
+                    title: 'Total Nos Skills'
+                }
+            };
+            var piechart = new google.visualization.PieChart(document.getElementById('piechart_div'));
+            piechart.draw(data, options);
+            return false;
+        }
+
+        //ColumnChart Logics
+        google.charts.setOnLoadCallback(LoadRequestColumnChartData);
+        function LoadRequestColumnChartData() {
+            $.ajax({
+                url: 'Home/NatureofRequestColumnChart',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    var err = eval("(" + xhr.responseText + ")");
+                    toastr.error(err.message);
+                },
+                success: function (data) {
+                    NatureofRequestColumnChart(data);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function NatureofRequestColumnChart(data) {
+            var dataArray = [
+                ['NatureRequest', 'Total Nos']
+            ];
+            $.each(data, function (i, item) {
+                dataArray.push([item.natureRequest, item.noCount]);
+            });
+            var data = google.visualization.arrayToDataTable(dataArray);
+            var options = {
+                title: 'Nature Of Request',
+                chartArea: {
+                    width: '50%'
+                },
+                colors: ['#004085', '#b0120a', '#ffab91', '#d95f02'],
+                hAxis: {
+                    title: 'NatureRequest',
+                    minValue: 0
+                },
+                vAxis: {
+                    title: 'Total Nos NatureRequest'
+                }
+            };
+            var columnchart = new google.visualization.BarChart(document.getElementById('columnChart_div'));
+            columnchart.draw(data, options);
+            return false;
+        }
+    </script>
+</div>

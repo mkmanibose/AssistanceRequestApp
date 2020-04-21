@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/AssistanceRequestApp.Web/Logs/myapp-20200420.txt
+/AssistanceRequestApp.Web/Logs/myapp-20200421.txt
