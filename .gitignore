@@ -340,3 +340,5 @@ ASALocalRun/
 healthchecksdb
 /AssistanceRequestApp.Web/Logs/myapp-20200420.txt
 /AssistanceRequestApp.Web/Logs/myapp-20200421.txt
+/AssistanceRequestApp.Web/Logs
+/AssistanceRequestApp.Web/.config

@@ -12,6 +12,7 @@
         <link href="~/css/shared/base.css" rel="stylesheet">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="~/css/site.css" />
+        <link href="~/css/Chat.css" rel="stylesheet" />
     </environment>
     <environment names="Staging,Production">
         <link asp-append-version="true" href="~/css/page/bundle.min.css" rel="stylesheet">
@@ -42,6 +43,32 @@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
+            <div id="body">
+
+                <div id="chat-circle" class="btn btn-raised">
+                    <div id="chat-overlay"></div>
+                </div>
+
+                <div class="chat-box">
+                    <div class="chat-box-header">
+                        Online Chat
+                        <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+                    </div>
+                    <div class="chat-box-body">
+                        <div class="chat-box-overlay">
+                        </div>
+                        <div class="chat-logs">
+
+                        </div><!--chat-log -->
+                    </div>
+                    <div class="chat-input">
+                        <form>
+                            <input type="text" id="chat-input" placeholder="Send a message..." />
+                            <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </main>
     </div>
 
@@ -52,11 +79,12 @@
     </footer>
 
     <environment names="Development">
+
         <script src="~/js/mvc-grid/mvc-grid.js"></script>
         <script src="~/lib/jquery/dist/jquery.min.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
-
+        <script src="~/js/Chat.js"></script>
         <script>
             document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
         </script>
@@ -65,5 +93,6 @@
         <script asp-append-version="true" src="~/js/page/bundle.min.js"></script>
     </environment>
     @RenderSection("Scripts", required: false)
+
 </body>
 </html>
