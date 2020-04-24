@@ -82,7 +82,6 @@ Convert.ToDecimal(Model.Count().ToString()) * 100;
     }
 </style>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
 <div class="widget code col">
     <div class="widget-header">
@@ -112,7 +111,6 @@ Convert.ToDecimal(Model.Count().ToString()) * 100;
                         <span class="text-success mr-2">
                             <i class="fa fa-arrow-up"></i>@CalculateSubmitPercentage("Submitted").ToString("0.##")%
                         </span>
-
                         <span class="text-nowrap">
                             @CalculateSubmitDate("Submitted")
                         </span>
@@ -187,12 +185,12 @@ Convert.ToDecimal(Model.Count().ToString()) * 100;
 
     <div id="piechart_div"></div>
     <div id="columnChart_div"></div>
-
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
-        google.charts.load('current', {
-            packages: ['corechart', 'bar']
-        });
+        google.charts.load('current', { packages: ['corechart', 'bar'] });
+
         //PieChart Logics
+
         google.charts.setOnLoadCallback(LoadRequestPieChartData);
         function LoadRequestPieChartData() {
             $.ajax({
@@ -239,6 +237,7 @@ Convert.ToDecimal(Model.Count().ToString()) * 100;
         }
 
         //ColumnChart Logics
+
         google.charts.setOnLoadCallback(LoadRequestColumnChartData);
         function LoadRequestColumnChartData() {
             $.ajax({

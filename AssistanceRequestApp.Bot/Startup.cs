@@ -1,22 +1,22 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using AssistanceRequestApp.ChatBot.Bots;
-using AssistanceRequestApp.ChatBot.EchoBot;
 using AssistanceRequestApp.DL.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.QnA;
+using Microsoft.Bot.Builder.EchoBot;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.BotBuilderSamples.Bots;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
-namespace AssistanceRequestApp.ChatBot
+namespace Microsoft.BotBuilderSamples
 {
     public class Startup
     {
@@ -33,18 +33,16 @@ namespace AssistanceRequestApp.ChatBot
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        [System.Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // Create the Bot Framework Adapter.
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, Bots.EchoBot>();
-            services.AddDbContext<AssistanceRequestAppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("AzureDatabaseConnectionString")));
-            services.AddTransient<DL.Interface.IRequestDLRepository, DL.RequestDLRepository>();
+            services.AddTransient<IBot, EchoBot>();
+
             // Create QnAMaker endpoint as a singleton
             services.AddSingleton(new QnAMakerEndpoint
             {
@@ -52,6 +50,10 @@ namespace AssistanceRequestApp.ChatBot
                 EndpointKey = Configuration.GetValue<string>($"QnAAuthKey"),
                 Host = Configuration.GetValue<string>($"QnAEndpointHostName")
             });
+            services.AddDbContext<AssistanceRequestAppDBContext>(options => options.UseSqlServer(Configuration.GetConnectionString("connectionString")));
+            services.AddTransient<AssistanceRequestApp.DL.Interface.IRequestDLRepository, AssistanceRequestApp.DL.RequestDLRepository>();
+            services.AddMvc(option => option.EnableEndpointRouting = false);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +61,11 @@ namespace AssistanceRequestApp.ChatBot
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddFile("Logs/myapp-{Date}.txt");
+            //using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            //{
+            //    var context = serviceScope.ServiceProvider.GetRequiredService<AssistanceRequestAppDBContext>();
+            //    context.Database.OpenConnection();
+            //}
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -67,9 +74,12 @@ namespace AssistanceRequestApp.ChatBot
             {
                 app.UseHsts();
             }
+
             app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseWebSockets();
+            app.UseMvc();
+
         }
     }
 }

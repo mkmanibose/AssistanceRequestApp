@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistanceRequestApp.Models
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistanceRequestApp.Web", "AssistanceRequestApp.Web\AssistanceRequestApp.Web.csproj", "{18534941-99FD-4EF8-BED7-F0A2676F59F8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AssistanceRequestApp.ChatBot", "AssistanceRequestApp.ChatBot\AssistanceRequestApp.ChatBot.csproj", "{FCB56C0A-0C10-4E1D-AC69-3872E53BB6D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EchoBot", "AssistanceRequestApp.Bot\EchoBot.csproj", "{A59F1827-B7CA-442A-9416-A0E13C2EEBCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{18534941-99FD-4EF8-BED7-F0A2676F59F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{18534941-99FD-4EF8-BED7-F0A2676F59F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{18534941-99FD-4EF8-BED7-F0A2676F59F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FCB56C0A-0C10-4E1D-AC69-3872E53BB6D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FCB56C0A-0C10-4E1D-AC69-3872E53BB6D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FCB56C0A-0C10-4E1D-AC69-3872E53BB6D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FCB56C0A-0C10-4E1D-AC69-3872E53BB6D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A59F1827-B7CA-442A-9416-A0E13C2EEBCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A59F1827-B7CA-442A-9416-A0E13C2EEBCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A59F1827-B7CA-442A-9416-A0E13C2EEBCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A59F1827-B7CA-442A-9416-A0E13C2EEBCE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

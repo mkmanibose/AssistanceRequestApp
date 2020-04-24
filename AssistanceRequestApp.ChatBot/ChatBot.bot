@@ -6,13 +6,13 @@
             "type": "endpoint",
             "appId": "e4956875-8edb-4bb1-8089-9cd4a1ef26af",
             "appPassword": "$;gK_wI@{yY@OPGR#rnzq1_.]Y",
-            "endpoint": "http://localhost:3978/",
+            "endpoint": "http://localhost:3978/api/messages",
             "id": "8f766910-8627-11ea-877c-3d3049389f3f",
-            "name": "http://localhost:3978/"
+            "name": "TestBotChat"
         }
     ],
     "padlock": "",
     "version": "2.0",
-    "overrides": null,
-    "path": "C:\\Users\\ShriVel\\source\\repos\\AssistanceRequestApp\\AssistanceRequestApp.ChatBot\\ChatBot.bot"
+    "path": "C:\\Users\\ShriVel\\source\\repos\\AssistanceRequestApp\\AssistanceRequestApp.ChatBot\\ChatBot.bot",
+    "overrides": null
 }

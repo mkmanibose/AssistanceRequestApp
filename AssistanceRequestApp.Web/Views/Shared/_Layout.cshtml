@@ -5,18 +5,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - @AppConstants.ApplicationName</title>
-    <environment names="Development">
-        <link href="~/css/bootstrap/bootstrap.css" rel="stylesheet">
-        <link href="~/css/font-awesome/font-awesome.css" rel="stylesheet">
-        <link href="~/css/mvc-grid/mvc-grid.css" rel="stylesheet">
-        <link href="~/css/shared/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
-        <link href="~/css/Chat.css" rel="stylesheet" />
-    </environment>
-    <environment names="Staging,Production">
-        <link asp-append-version="true" href="~/css/page/bundle.min.css" rel="stylesheet">
-    </environment>
+    @*<environment names="Development">*@
+    @*<link href="~/css/bootstrap/bootstrap.css" rel="stylesheet">*@
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="~/css/font-awesome/font-awesome.css" rel="stylesheet">
+    <link href="~/css/mvc-grid/mvc-grid.css" rel="stylesheet">
+    <link href="~/css/shared/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link href="~/css/Chat.css" rel="stylesheet" />
+    @*</environment>
+        <environment names="Staging,Production">
+            <link asp-append-version="true" href="~/css/page/bundle.min.css" rel="stylesheet">
+        </environment>*@
 </head>
 <body>
     <header>
@@ -43,53 +44,53 @@
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
-            <div id="body">
-                <div id="chat-circle" class="btn btn-raised">
-                    <div id="chat-overlay"></div>
-                </div>
-                <div class="chat-box">
-                    <div class="chat-box-header">
-                        Online Chat
-                        <span class="chat-box-toggle"><i class="material-icons">close</i></span>
-                    </div>
-                    @*<div class="chat-box-body">
-                            <div class="chat-box-overlay">
-                            </div>
-                        </div>
-                        <div class="chat-input">
-                            <form>
-                                <input type="text" id="chat-input" placeholder="Send a message..." />
-                                <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
-                            </form>
-                        </div>*@
-                    <div class="chat-logs">
-                        <iframe src='https://webchat.botframework.com/embed/SanBotSample?s=DR_uNzGD9Os.L6U1LCVSd2WNwmbElE2691YJsOeAnYqP5ccTd_acqZw' style='width: 100%; height: 100%;'></iframe>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
-
+    <div>
+        <div id="body">
+            <div id="chat-circle" class="btn btn-raised">
+                <div id="chat-overlay"></div>
+            </div>
+            <div class="chat-box">
+                <div class="chat-box-header">
+                    Online Chat
+                    <span class="chat-box-toggle"><i class="material-icons">close</i></span>
+                </div>
+                @*<div class="chat-box-body">
+                        <div class="chat-box-overlay">
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <form>
+                            <input type="text" id="chat-input" placeholder="Send a message..." />
+                            <button type="submit" class="chat-submit" id="chat-submit"><i class="material-icons">send</i></button>
+                        </form>
+                    </div>*@
+                <div class="chat-logs">
+                    <iframe src='https://webchat.botframework.com/embed/SanBotSample?s=DR_uNzGD9Os.L6U1LCVSd2WNwmbElE2691YJsOeAnYqP5ccTd_acqZw' style='width: 100%; height: 100%;'></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2020 - @AppConstants.ApplicationName - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    @*<environment names="Development">*@
+    <script src="~/js/mvc-grid/mvc-grid.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Chat.js"></script>
 
-    <environment names="Development">
-
-        <script src="~/js/mvc-grid/mvc-grid.js"></script>
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-        <script src="~/js/Chat.js"></script>
-        <script>
-            document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
-        </script>
-    </environment>
-    <environment names="Staging,Production">
-        <script asp-append-version="true" src="~/js/page/bundle.min.js"></script>
-    </environment>
+    <script>
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
+    </script>
+    @*</environment>*@
+    @*<environment names="Staging,Production">
+            <script asp-append-version="true" src="~/js/page/bundle.min.js"></script>
+        </environment>*@
     @RenderSection("Scripts", required: false)
 
 </body>
