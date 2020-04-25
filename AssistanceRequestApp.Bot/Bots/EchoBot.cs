@@ -24,7 +24,7 @@ namespace Microsoft.BotBuilderSamples.Bots
     {
         public QnAMaker EchoBotQnA { get; private set; }
         public IConfiguration Configuration { get; }
-        //private readonly List<QnA> QnAs;
+
         /// <summary>
         /// Defines the logger.
         /// </summary>
@@ -44,11 +44,11 @@ namespace Microsoft.BotBuilderSamples.Bots
         {
             EchoBotQnA = new QnAMaker(endpoint);
             Configuration = configuration;
-            // QnAs = new List<QnA>();
             this.logger = logger;
             this.requestDLRepository = context;
             lstDetailRequestModels = requestDLRepository.GetAllRequests();
         }
+
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             await AccessQnAMaker(turnContext, cancellationToken);
@@ -82,7 +82,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                 searchAnswer = Convert.ToString(lstDetailRequestModels.Where
                     (r => r.Status.Equals("Closed") && r.DateCompleted != null && r.ResolutionComments != null &&
                     r.RelatedEnvironment.Equals(relatedEnvironment) && r.NatureofRequest.Equals(natureOfRequest) &&
-                    r.DescriptionofRequest.ToString().ToLower().Contains(questionText))
+                    r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
                     .OrderByDescending(o => o.CreatedDate).ThenByDescending(t => t.DateCompleted)
                     .Select(s => s.ResolutionComments).FirstOrDefault());
                 //using (var sqlConnection = new SqlConnection(Configuration.GetValue<string>($"AzureDatabaseConnectionString")))
@@ -223,29 +223,42 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                         Startup.Environment = null;
                                         Startup.NatureOfRequest = null;
+                                        Startup.QnAs = new List<QnA>();
                                     }
                                     else
                                     {
                                         var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
                                         await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                                        Startup.Environment = null;
+                                        Startup.NatureOfRequest = null;
+                                        Startup.QnAs = new List<QnA>();
                                     }
                                 }
                                 else
                                 {
                                     var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
                                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                                    Startup.Environment = null;
+                                    Startup.NatureOfRequest = null;
+                                    Startup.QnAs = new List<QnA>();
                                 }
                             }
                             else
                             {
                                 var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
                                 await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                                Startup.Environment = null;
+                                Startup.NatureOfRequest = null;
+                                Startup.QnAs = new List<QnA>();
                             }
                         }
                         else
                         {
                             var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
                             await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                            Startup.Environment = null;
+                            Startup.NatureOfRequest = null;
+                            Startup.QnAs = new List<QnA>();
                         }
                     }
                 }
@@ -253,12 +266,18 @@ namespace Microsoft.BotBuilderSamples.Bots
                 {
                     var defaultText = $"Thanks for reaching out to us, We will get back to you shortly";
                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                    Startup.Environment = null;
+                    Startup.NatureOfRequest = null;
+                    Startup.QnAs = new List<QnA>();
                 }
             }
             catch (Exception ex)
             {
                 logger.LogError("Exception in AccessQnAMaker " + ex.Message);
                 logger.LogError(ex.StackTrace);
+                Startup.Environment = null;
+                Startup.NatureOfRequest = null;
+                Startup.QnAs = new List<QnA>();
             }
         }
     }
