@@ -1,0 +1,18 @@
+{
+    "name": "Latest",
+    "description": "",
+    "services": [
+        {
+            "type": "endpoint",
+            "appId": "3057c900-9c8d-40f5-9833-b1c30c7d2d17",
+            "appPassword": "usIkK9IYf+oS@GV1IK6VGgMa.e.3",
+            "endpoint": "http://localhost:3978/api/messages",
+            "id": "31fb0010-8709-11ea-b2a3-536c6a836857",
+            "name": "LatestLocal"
+        }
+    ],
+    "padlock": "",
+    "version": "2.0",
+    "path": "C:\\Users\\ShriVel\\source\\repos\\AssistanceRequestApp\\AssistanceRequestApp.ChatBot\\Latest.bot",
+    "overrides": null
+}

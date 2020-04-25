@@ -342,3 +342,4 @@ healthchecksdb
 /AssistanceRequestApp.Web/Logs/myapp-20200421.txt
 /AssistanceRequestApp.Web/Logs
 /AssistanceRequestApp.Web/.config
+/AssistanceRequestApp.Bot/Logs
