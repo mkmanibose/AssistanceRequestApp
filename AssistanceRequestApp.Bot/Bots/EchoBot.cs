@@ -17,6 +17,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Microsoft.BotBuilderSamples.Bots
 {
@@ -208,6 +209,10 @@ namespace Microsoft.BotBuilderSamples.Bots
                     }
                     else
                     {
+                        var hrefLink = XElement.Parse("<th><a href=\"https://assistancerequestapp.azurewebsites.net/Request\">New Request</a></th>")
+                                        .Descendants("a")
+                                        .Select(x => x.Attribute("href").Value)
+                                        .FirstOrDefault();
                         //In the below logic where sql db call happens when there is no match found in qna maker
                         if (Startup.QnAs.Count() > 1)
                         {
@@ -218,7 +223,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 {
                                     var answer = GetAnswers(turnContext.Activity.Text, Startup.Environment, Startup.NatureOfRequest);
                                     if (!string.IsNullOrWhiteSpace(answer))
-                                    {
+                                    {                                        
                                         var replyText = $"Here is resolution steps: {answer}";
                                         await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                         Startup.Environment = null;
@@ -226,8 +231,8 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         Startup.QnAs = new List<QnA>();
                                     }
                                     else
-                                    {
-                                        var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
+                                    {                                        
+                                        var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
                                         await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                         Startup.Environment = null;
                                         Startup.NatureOfRequest = null;
@@ -236,7 +241,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 }
                                 else
                                 {
-                                    var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
+                                    var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                     Startup.Environment = null;
                                     Startup.NatureOfRequest = null;
@@ -245,7 +250,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                             }
                             else
                             {
-                                var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
+                                var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
                                 await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                 Startup.Environment = null;
                                 Startup.NatureOfRequest = null;
@@ -254,7 +259,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                         }
                         else
                         {
-                            var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks";
+                            var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
                             await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                             Startup.Environment = null;
                             Startup.NatureOfRequest = null;
