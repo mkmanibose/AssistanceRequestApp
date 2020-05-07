@@ -3,6 +3,7 @@
 
 using AssistanceRequestApp.DL.Interface;
 using AssistanceRequestApp.Models.UserDefinedModels;
+using EchoBot.Models;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.QnA;
 using Microsoft.Bot.Schema;
@@ -40,6 +41,8 @@ namespace Microsoft.BotBuilderSamples.Bots
         /// Defines the lstDetailRequestModels.
         /// </summary>
         private readonly List<DetailRequestModel> lstDetailRequestModels = new List<DetailRequestModel>();
+
+        private readonly List<string> inProgressStatuses = new List<string>() { "InProgress", "Open", "Submitted" };
 
         public EchoBot(QnAMakerEndpoint endpoint, IConfiguration configuration, ILogger<EchoBot> logger, IRequestDLRepository context)
         {
@@ -82,7 +85,7 @@ namespace Microsoft.BotBuilderSamples.Bots
             {
                 searchAnswer = Convert.ToString(lstDetailRequestModels.Where
                     (r => r.Status.Equals("Closed") && r.DateCompleted != null && r.ResolutionComments != null &&
-                    r.RelatedEnvironment.Equals(relatedEnvironment) && r.NatureofRequest.Equals(natureOfRequest) &&
+                    r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) &&
                     r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
                     .OrderByDescending(o => o.CreatedDate).ThenByDescending(t => t.DateCompleted)
                     .Select(s => s.ResolutionComments).FirstOrDefault());
@@ -118,6 +121,27 @@ namespace Microsoft.BotBuilderSamples.Bots
             return searchAnswer;
         }
 
+        private string GetInProgressRequests(string questionText, string relatedEnvironment, string natureOfRequest)
+        {
+            string searchAnswer = string.Empty;
+            try
+            {
+                searchAnswer = Convert.ToString(lstDetailRequestModels.Where
+                   (r => inProgressStatuses.Contains(r.Status)//r.Status.Equals("InProgress") 
+                   && r.DateCompleted == null && r.ResolutionComments == null
+                    && r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) &&
+                    r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
+                    .OrderByDescending(o => o.CreatedDate)
+                    .Select(s => s.DescriptionofRequest).FirstOrDefault());
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in GetInProgressRequests " + ex.Message);
+                logger.LogError(ex.StackTrace);
+            }
+            return searchAnswer;
+        }
+
         private async Task AccessQnAMaker(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             try
@@ -126,9 +150,17 @@ namespace Microsoft.BotBuilderSamples.Bots
                 {
                     // The actual call to the QnA Maker service.
                     var response = await EchoBotQnA.GetAnswersAsync(turnContext);
+                    if (response.Length <= 0)
+                    {
+                        var applicationObject = Startup.QnAs.Last();
+                        if (applicationObject.Answer.Equals("Please enter your application name"))
+                        {
+                            Startup.QnAs.Add(new QnA { Question = "ApplicationName", Answer = turnContext.Activity.Text, LoggedTime = DateTime.Now });
+                        }
+                    }
+
                     if (response != null && response.Length > 0)
                     {
-
                         //Below logic is to avoid keywords issue being searched in SQL for resolution
                         if (Startup.QnAs.Count() > 1)
                         {
@@ -173,6 +205,14 @@ namespace Microsoft.BotBuilderSamples.Bots
                                     Startup.NatureOfRequest = QnAForEnvironment.Question;
                                 }
                             }
+
+                            if (QnAForEnvironment.Answer.Equals("Please enter your application name"))
+                            {
+                                if (QnAForEnvironment.Question.Equals("Old") || QnAForEnvironment.Question.Equals("New"))
+                                {
+                                    Startup.KickStartRequest.TypeofApplication = QnAForEnvironment.Question;
+                                }
+                            }
                         }
 
                         //Below code is handling prompt type answers to display properly in chat window
@@ -215,15 +255,17 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         .FirstOrDefault();
                         //In the below logic where sql db call happens when there is no match found in qna maker
                         if (Startup.QnAs.Count() > 1)
-                        {
-                            var questionAndAnswerObject = Startup.QnAs[Startup.QnAs.Count - 1];
+                        {                            
+                            var questionAndAnswerObject = Startup.QnAs.Last();
+
+
                             if (questionAndAnswerObject.Answer.Equals("Please enter your issue statement or request statement"))
                             {
                                 if (!string.IsNullOrWhiteSpace(Startup.Environment) && !string.IsNullOrWhiteSpace(Startup.NatureOfRequest))
                                 {
                                     var answer = GetAnswers(turnContext.Activity.Text, Startup.Environment, Startup.NatureOfRequest);
                                     if (!string.IsNullOrWhiteSpace(answer))
-                                    {                                        
+                                    {
                                         var replyText = $"Here is resolution steps: {answer}";
                                         await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                         Startup.Environment = null;
@@ -231,12 +273,25 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         Startup.QnAs = new List<QnA>();
                                     }
                                     else
-                                    {                                        
-                                        var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
-                                        await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
-                                        Startup.Environment = null;
-                                        Startup.NatureOfRequest = null;
-                                        Startup.QnAs = new List<QnA>();
+                                    {
+                                        var inProgressRequests = GetInProgressRequests(turnContext.Activity.Text, Startup.Environment, Startup.NatureOfRequest);
+                                        if (!string.IsNullOrWhiteSpace(inProgressRequests))
+                                        {
+                                            var replyText = $"Already request has been raised with similar context : {inProgressRequests}";
+                                            await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
+                                            Startup.Environment = null;
+                                            Startup.NatureOfRequest = null;
+                                            Startup.QnAs = new List<QnA>();
+                                        }
+                                        else
+                                        {
+                                            var defaultText = $"We could not find the suitable resolution to you";
+                                            await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                                            //Startup.Environment = null;
+                                            //Startup.NatureOfRequest = null;
+                                            //Startup.QnAs = new List<QnA>();
+                                            await KickStartQuestions(turnContext, cancellationToken);
+                                        }
                                     }
                                 }
                                 else
@@ -248,13 +303,29 @@ namespace Microsoft.BotBuilderSamples.Bots
                                     Startup.QnAs = new List<QnA>();
                                 }
                             }
-                            else
+                            var applicationQnA = Startup.QnAs.Last();
+                            if (applicationQnA.Question.Equals("ApplicationName"))
                             {
-                                var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
-                                await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
-                                Startup.Environment = null;
-                                Startup.NatureOfRequest = null;
-                                Startup.QnAs = new List<QnA>();
+                                Startup.KickStartRequest.ApplicationName = applicationQnA.Answer;
+                                if (!string.IsNullOrWhiteSpace(Startup.Environment))
+                                {
+                                    Startup.KickStartRequest.DomainName = Startup.Environment;
+                                    string kickstartURL = string.Format("https://www.w3schools.com/test/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication, Startup.KickStartRequest.ApplicationName, Startup.KickStartRequest.DomainName);
+
+                                    var replyText = $"Please use the below url to kickstart your application : " + kickstartURL;
+                                    await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
+                                    Startup.Environment = null;
+                                    Startup.NatureOfRequest = null;
+                                    Startup.QnAs = new List<QnA>();
+                                }
+                                else
+                                {
+                                    var defaultText = $"Some error occured, Please try after some time.";
+                                    await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
+                                    Startup.Environment = null;
+                                    Startup.NatureOfRequest = null;
+                                    Startup.QnAs = new List<QnA>();
+                                }
                             }
                         }
                         else
@@ -285,64 +356,42 @@ namespace Microsoft.BotBuilderSamples.Bots
                 Startup.QnAs = new List<QnA>();
             }
         }
-    }
 
-    class FollowUpCheckResult
-    {
-        [JsonProperty("answers")]
-        public FollowUpCheckQnAAnswer[] Answers
+        public async Task KickStartQuestions(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            get;
-            set;
-        }
-    }
+            turnContext.Activity.Text = "kickstart";
+            var response = await EchoBotQnA.GetAnswersAsync(turnContext);
+            //Below code is handling prompt type answers to display properly in chat window
+            // create http client to perform qna query
+            var followUpCheckHttpClient = new HttpClient();
 
-    class FollowUpCheckQnAAnswer
-    {
-        [JsonProperty("context")]
-        public FollowUpCheckContext Context
-        {
-            get;
-            set;
-        }
-    }
+            // add QnAAuthKey to Authorization header
+            followUpCheckHttpClient.DefaultRequestHeaders.Add("Authorization", Configuration.GetValue<string>("QnAAuthKey"));
 
-    class FollowUpCheckContext
-    {
-        [JsonProperty("prompts")]
-        public FollowUpCheckPrompt[] Prompts
-        {
-            get;
-            set;
-        }
-    }
+            // construct the qna query url
+            var url = Configuration.GetValue<string>("QnAQueryUrl");
 
-    class FollowUpCheckPrompt
-    {
-        [JsonProperty("displayText")]
-        public string DisplayText
-        {
-            get;
-            set;
-        }
-    }
+            // post query
+            var checkFollowUpJsonResponse = await followUpCheckHttpClient.PostAsync(url, new StringContent("{\"question\":\"" + turnContext.Activity.Text + "\"}", Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync();
 
-    class QnA
-    {
-        public string Question
-        {
-            get;
-            set;
-        }
-        public string Answer
-        {
-            get;
-            set;
-        }
-        public DateTime LoggedTime
-        {
-            get;
-            set;
+            // parse result
+            var followUpCheckResult = JsonConvert.DeserializeObject<FollowUpCheckResult>(checkFollowUpJsonResponse);
+
+            // initialize reply message containing the default answer
+            var reply = MessageFactory.Text(response[0].Answer);
+
+            if (followUpCheckResult.Answers.Length > 0 && followUpCheckResult.Answers[0].Context.Prompts.Length > 0)
+            {
+                // if follow-up check contains valid answer and at least one prompt, add prompt text to SuggestedActions using CardAction one by one
+                reply.SuggestedActions = new SuggestedActions();
+                reply.SuggestedActions.Actions = new List<CardAction>();
+                for (int i = 0; i < followUpCheckResult.Answers[0].Context.Prompts.Length; i++)
+                {
+                    var promptText = followUpCheckResult.Answers[0].Context.Prompts[i].DisplayText;
+                    reply.SuggestedActions.Actions.Add(new CardAction() { Title = promptText, Type = ActionTypes.ImBack, Value = promptText });
+                }
+            }
+            await turnContext.SendActivityAsync(reply, cancellationToken);
         }
     }
 }

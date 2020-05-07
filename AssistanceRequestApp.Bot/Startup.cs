@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using AssistanceRequestApp.DL.Context;
+using EchoBot.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,6 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.QnA;
 using Microsoft.Bot.Builder.EchoBot;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
-using Microsoft.BotBuilderSamples.Bots;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +22,7 @@ namespace Microsoft.BotBuilderSamples
     {
         private const string BotOpenIdMetadataKey = "BotOpenIdMetadata";
         internal static List<QnA> QnAs = new List<QnA>();
+        internal static KickStartRequest KickStartRequest = new KickStartRequest();
         internal static string Environment = null;
         internal static string NatureOfRequest = null;
 
@@ -41,7 +42,7 @@ namespace Microsoft.BotBuilderSamples
             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, EchoBot>();
+            services.AddTransient<IBot, Bots.EchoBot>();
 
             // Create QnAMaker endpoint as a singleton
             services.AddSingleton(new QnAMakerEndpoint
