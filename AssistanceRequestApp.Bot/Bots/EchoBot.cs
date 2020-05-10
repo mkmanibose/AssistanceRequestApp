@@ -85,33 +85,9 @@ namespace Microsoft.BotBuilderSamples.Bots
             {
                 searchAnswer = Convert.ToString(lstDetailRequestModels.Where
                     (r => r.Status.Equals("Closed") && r.DateCompleted != null && r.ResolutionComments != null &&
-                    r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) &&
-                    r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
+                    r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) && r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
                     .OrderByDescending(o => o.CreatedDate).ThenByDescending(t => t.DateCompleted)
                     .Select(s => s.ResolutionComments).FirstOrDefault());
-                //using (var sqlConnection = new SqlConnection(Configuration.GetValue<string>($"AzureDatabaseConnectionString")))
-                //{
-                //    sqlConnection.Open();
-                //    var sqlQuery = @"SELECT TOP 1 ResolutionComments
-                //                    FROM [dbo].Request
-                //                    WHERE ResolutionComments IS NOT NULL
-                //                    AND DateCompleted IS NOT NULL
-                //                    AND [Status] = 'Closed'
-                //                    AND RelatedEnvironment = @relatedEnvironment
-                //                    AND NatureofRequest = @natureofRequest
-                //                    AND DescriptionofRequest LIKE '%' + @filter + '%'
-                //                    ORDER BY CreatedDate, DateCompleted DESC";
-                //    var command = new SqlCommand(sqlQuery, sqlConnection);
-                //    command.CommandType = CommandType.Text;
-                //    command.Parameters.AddWithValue("@filter", questionText);
-                //    command.Parameters.AddWithValue("@relatedEnvironment", relatedEnvironment);
-                //    command.Parameters.AddWithValue("@natureofRequest", natureOfRequest);
-                //    var result = command.ExecuteScalar();
-                //    if (result != null && result != string.Empty)
-                //    {
-                //        return result.ToString();
-                //    }
-                //}
             }
             catch (Exception ex)
             {
@@ -129,8 +105,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                 searchAnswer = Convert.ToString(lstDetailRequestModels.Where
                    (r => inProgressStatuses.Contains(r.Status)//r.Status.Equals("InProgress") 
                    && r.DateCompleted == null && r.ResolutionComments == null
-                    && r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) &&
-                    r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
+                    && r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) && r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
                     .OrderByDescending(o => o.CreatedDate)
                     .Select(s => s.DescriptionofRequest).FirstOrDefault());
             }
@@ -255,7 +230,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         .FirstOrDefault();
                         //In the below logic where sql db call happens when there is no match found in qna maker
                         if (Startup.QnAs.Count() > 1)
-                        {                            
+                        {
                             var questionAndAnswerObject = Startup.QnAs.Last();
 
 
