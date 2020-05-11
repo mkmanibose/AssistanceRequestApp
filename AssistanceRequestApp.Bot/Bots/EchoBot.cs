@@ -175,7 +175,7 @@ namespace Microsoft.BotBuilderSamples.Bots
 
                             if (QnAForEnvironment.Answer.Equals("Please enter your issue statement or request statement"))
                             {
-                                if (QnAForEnvironment.Question.Equals("Request Assistance") || QnAForEnvironment.Question.Equals("Reqest Information") || QnAForEnvironment.Question.Equals("Request Change") || QnAForEnvironment.Question.Equals("Suggest New Feature"))
+                                if (QnAForEnvironment.Question.Equals("Request Assistance") || QnAForEnvironment.Question.Equals("Request Information") || QnAForEnvironment.Question.Equals("Request Change") || QnAForEnvironment.Question.Equals("Suggest New Feature"))
                                 {
                                     Startup.NatureOfRequest = QnAForEnvironment.Question;
                                 }
