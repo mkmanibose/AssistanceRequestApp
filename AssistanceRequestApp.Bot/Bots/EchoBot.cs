@@ -175,7 +175,7 @@ namespace Microsoft.BotBuilderSamples.Bots
 
                             if (QnAForEnvironment.Answer.Equals("Please enter your issue statement or request statement"))
                             {
-                                if (QnAForEnvironment.Question.Equals("Request Assistance") || QnAForEnvironment.Question.Equals("Reqest Information") || QnAForEnvironment.Question.Equals("Request Change") || QnAForEnvironment.Question.Equals("Suggest New Feature"))
+                                if (QnAForEnvironment.Question.Equals("Request Assistance") || QnAForEnvironment.Question.Equals("Request Information") || QnAForEnvironment.Question.Equals("Request Change") || QnAForEnvironment.Question.Equals("Suggest New Feature"))
                                 {
                                     Startup.NatureOfRequest = QnAForEnvironment.Question;
                                 }
@@ -224,7 +224,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                     }
                     else
                     {
-                        var hrefLink = XElement.Parse("<th><a href=\"https://assistancerequestapp.azurewebsites.net/Request\">New Request</a></th>")
+                        var hrefLink = XElement.Parse("<th><a href=\"https://kickstartassistancerequestapp.azurewebsites.net/Request\">New Request</a></th>")
                                         .Descendants("a")
                                         .Select(x => x.Attribute("href").Value)
                                         .FirstOrDefault();
@@ -285,7 +285,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 if (!string.IsNullOrWhiteSpace(Startup.Environment))
                                 {
                                     Startup.KickStartRequest.DomainName = Startup.Environment;
-                                    string kickstartURL = string.Format("https://www.w3schools.com/test/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication, Startup.KickStartRequest.ApplicationName, Startup.KickStartRequest.DomainName);
+                                    string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication, Startup.KickStartRequest.ApplicationName, Startup.KickStartRequest.DomainName);
 
                                     var replyText = $"Please use the below url to kickstart your application : " + kickstartURL;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
