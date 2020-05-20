@@ -188,8 +188,8 @@
                     {
                         CreateRequestModel addRequestModel = new CreateRequestModel { Name = editRequestModel.Name, EmployeeId = editRequestModel.EmployeeId, EmailId = editRequestModel.EmailId, Phone = editRequestModel.Phone, ApplicationName = editRequestModel.ApplicationName, NatureofRequest = editRequestModel.NatureofRequest, RelatedEnvironment = editRequestModel.RelatedEnvironment, DescriptionofRequest = "[" + DateTime.Now.ToString("MMMM-dd-yy") + "] " + editRequestModel.DescriptionofRequest, IPAddress = Common.ClientIPAddressDetails.GetClientIP(), Status = "Submitted" };
                         result = await requestDLRepository.CreateRequest(addRequestModel);
-                        if (string.IsNullOrWhiteSpace(result))
-                            return RedirectToAction("index");
+                        if (!string.IsNullOrWhiteSpace(result))
+                            return RedirectToAction("CreateRequestDetails", new { id = Convert.ToString(result), requestName = Convert.ToString(editRequestModel.Name) });
                     }
                     else
                     {
@@ -205,6 +205,28 @@
                 logger.LogError(ex.StackTrace);
             }
             return View(editRequestModel);
+        }
+
+        /// <summary>
+        /// The CreateRequestDetails.
+        /// </summary>
+        /// <param name="id">The id<see cref="string"/>.</param>
+        /// <param name="requestName">The requestName<see cref="string"/>.</param>
+        /// <returns>The <see cref="IActionResult"/>.</returns>
+        public IActionResult CreateRequestDetails(string id, string requestName)
+        {
+            CreateRequestDetailsModel createRequestDetailsModel = new CreateRequestDetailsModel();
+            try
+            {
+                createRequestDetailsModel.Id = Convert.ToInt32(id);
+                createRequestDetailsModel.Name = Convert.ToString(requestName);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in DetailRequestCreateRequestDetails " + ex.Message);
+                logger.LogError(ex.StackTrace);
+            }
+            return View(createRequestDetailsModel);
         }
 
         /// <summary>

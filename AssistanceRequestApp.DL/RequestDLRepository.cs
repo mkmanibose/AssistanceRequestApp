@@ -57,8 +57,7 @@
                 context.Requests.Add(requestDb);
                 //context.Entry(requestModel).State = EntityState.Added;
                 await context.SaveChangesAsync();
-                if (requestDb.Id < 1)
-                    result = "Error in CreateRequest";
+                result = Convert.ToString(requestDb.Id);
             }
             catch (Exception ex)
             {

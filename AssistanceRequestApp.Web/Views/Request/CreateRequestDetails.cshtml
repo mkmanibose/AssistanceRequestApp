@@ -1,0 +1,43 @@
+﻿@using AssistanceRequestApp.Models.UserDefinedModels;
+@model CreateRequestDetailsModel;
+@{
+    ViewData["Title"] = "CreateRequestDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="widget code col">
+    <div class="widget-header">
+        <div class="fa fa-code"></div>
+        <span>Your Framework & Services Request Has Been Received</span>
+    </div>
+    <div class="widget-content">
+        <div class="form-horizontal">
+            <div class="card-header bg-info text-white d-flex">
+                <div class="ml-auto">
+                    @Html.ActionLink("Back to List", "CreateEditRequest", "Request", null, new { @class = "btn btn-primary" })
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="text-indent: 20px;">
+                    <p><b>@Model.Name</b>,</p>
+                    <p>
+                        A request submitted by you(or on your behalf) has been successfully received.
+                    </p>
+                    <p>
+                        Your request has been assigned Assistance Request Number <b>@Model.Id</b>.
+                    </p>
+                    <p>
+                        Someone will contact you within two business days.
+                    </p>
+                    <p>
+                        Thanks & Regards!<br />
+                    </p>
+                    <p>
+                        <b>Frameworks & Services Team</b>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
