@@ -4,6 +4,7 @@
 using AssistanceRequestApp.DL.Interface;
 using AssistanceRequestApp.Models.UserDefinedModels;
 using EchoBot.Models;
+using EchoBot.WebClientExtension;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.AI.QnA;
 using Microsoft.Bot.Schema;
@@ -12,8 +13,12 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Data;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -133,6 +138,22 @@ namespace Microsoft.BotBuilderSamples.Bots
                             Startup.QnAs.Add(new QnA { Question = "ApplicationName", Answer = turnContext.Activity.Text, LoggedTime = DateTime.Now });
                         }
                     }
+                    else
+                    {
+                        if (Startup.QnAs.Count > 0)
+                        {
+                            var applicationObject = Startup.QnAs.Last();
+                            if (applicationObject.Answer.Equals("Please enter your application name"))
+                            {
+                                Startup.QnAs.Add(new QnA { Question = "ApplicationName", Answer = turnContext.Activity.Text, LoggedTime = DateTime.Now });
+                                response = null;
+                            }
+                            if (applicationObject.Answer.Equals("Please enter your issue statement or request statement"))
+                            {
+                                response = null;
+                            }
+                        }
+                    }
 
                     if (response != null && response.Length > 0)
                     {
@@ -178,6 +199,14 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 if (QnAForEnvironment.Question.Equals("Request Assistance") || QnAForEnvironment.Question.Equals("Request Information") || QnAForEnvironment.Question.Equals("Request Change") || QnAForEnvironment.Question.Equals("Suggest New Feature"))
                                 {
                                     Startup.NatureOfRequest = QnAForEnvironment.Question;
+                                }
+                            }
+
+                            if (QnAForEnvironment.Answer.Equals("Is your application New or Old?"))
+                            {
+                                if (QnAForEnvironment.Question.Equals("1) .NET") || QnAForEnvironment.Question.Equals("2) Java") || QnAForEnvironment.Question.Equals("3) Python") || QnAForEnvironment.Question.Equals("4) Mainframe"))
+                                {                                    
+                                    Startup.KickStartRequest.DomainName = QnAForEnvironment.Question.Remove(0, 3);
                                 }
                             }
 
@@ -260,12 +289,11 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         }
                                         else
                                         {
-                                            var defaultText = $"We could not find the suitable resolution to you";
+                                            var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
                                             await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
-                                            //Startup.Environment = null;
-                                            //Startup.NatureOfRequest = null;
-                                            //Startup.QnAs = new List<QnA>();
-                                            await KickStartQuestions(turnContext, cancellationToken);
+                                            Startup.Environment = null;
+                                            Startup.NatureOfRequest = null;
+                                            Startup.QnAs = new List<QnA>();                                            
                                         }
                                     }
                                 }
@@ -281,11 +309,25 @@ namespace Microsoft.BotBuilderSamples.Bots
                             var applicationQnA = Startup.QnAs.Last();
                             if (applicationQnA.Question.Equals("ApplicationName"))
                             {
-                                Startup.KickStartRequest.ApplicationName = applicationQnA.Answer;
-                                if (!string.IsNullOrWhiteSpace(Startup.Environment))
+                                Startup.KickStartRequest.ApplicationName = string.Concat(applicationQnA.Answer.Where(c => !char.IsWhiteSpace(c)));
+                                if (!string.IsNullOrWhiteSpace(Startup.KickStartRequest.DomainName) && !string.IsNullOrWhiteSpace(Startup.KickStartRequest.TypeofApplication))
                                 {
-                                    Startup.KickStartRequest.DomainName = Startup.Environment;
-                                    string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication, Startup.KickStartRequest.ApplicationName, Startup.KickStartRequest.DomainName);
+                                    string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication.ToLower(), Startup.KickStartRequest.ApplicationName.ToLower(), Startup.KickStartRequest.DomainName.ToLower());
+                                    //string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net");//, //Startup.KickStartRequest.ApplicationName.ToLower()+
+                                    //    //"azure.zip"); ;
+                                    //WebClientExt webclient = new WebClientExt();
+                                    //webclient.PostParam = new NameValueCollection();
+                                    //webclient.PostParam["typeofapplication"] = Startup.KickStartRequest.ApplicationName.ToLower();
+                                    //webclient.PostParam["applicationname"] = Startup.KickStartRequest.ApplicationName.ToLower();
+                                    //webclient.PostParam["domainname"] = Startup.KickStartRequest.DomainName.ToLower();
+                                    //webclient.DownloadFile(new Uri(kickstartURL), @"C:\AssistanceRequestApp\AssistanceRequestApp\AssistanceRequestApp.Bot\EchoBotZipFiles\azure.zip");
+
+                                    WebClient webClient = new WebClient();
+                                    webClient.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
+                                    webClient.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
+                                    webClient.DownloadFileAsync(new Uri(kickstartURL), @"C\deleteme\azure.zip");
+
+
 
                                     var replyText = $"Please use the below url to kickstart your application : " + kickstartURL;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
@@ -330,43 +372,6 @@ namespace Microsoft.BotBuilderSamples.Bots
                 Startup.NatureOfRequest = null;
                 Startup.QnAs = new List<QnA>();
             }
-        }
-
-        public async Task KickStartQuestions(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            turnContext.Activity.Text = "kickstart";
-            var response = await EchoBotQnA.GetAnswersAsync(turnContext);
-            //Below code is handling prompt type answers to display properly in chat window
-            // create http client to perform qna query
-            var followUpCheckHttpClient = new HttpClient();
-
-            // add QnAAuthKey to Authorization header
-            followUpCheckHttpClient.DefaultRequestHeaders.Add("Authorization", Configuration.GetValue<string>("QnAAuthKey"));
-
-            // construct the qna query url
-            var url = Configuration.GetValue<string>("QnAQueryUrl");
-
-            // post query
-            var checkFollowUpJsonResponse = await followUpCheckHttpClient.PostAsync(url, new StringContent("{\"question\":\"" + turnContext.Activity.Text + "\"}", Encoding.UTF8, "application/json")).Result.Content.ReadAsStringAsync();
-
-            // parse result
-            var followUpCheckResult = JsonConvert.DeserializeObject<FollowUpCheckResult>(checkFollowUpJsonResponse);
-
-            // initialize reply message containing the default answer
-            var reply = MessageFactory.Text(response[0].Answer);
-
-            if (followUpCheckResult.Answers.Length > 0 && followUpCheckResult.Answers[0].Context.Prompts.Length > 0)
-            {
-                // if follow-up check contains valid answer and at least one prompt, add prompt text to SuggestedActions using CardAction one by one
-                reply.SuggestedActions = new SuggestedActions();
-                reply.SuggestedActions.Actions = new List<CardAction>();
-                for (int i = 0; i < followUpCheckResult.Answers[0].Context.Prompts.Length; i++)
-                {
-                    var promptText = followUpCheckResult.Answers[0].Context.Prompts[i].DisplayText;
-                    reply.SuggestedActions.Actions.Add(new CardAction() { Title = promptText, Type = ActionTypes.ImBack, Value = promptText });
-                }
-            }
-            await turnContext.SendActivityAsync(reply, cancellationToken);
         }
     }
 }
