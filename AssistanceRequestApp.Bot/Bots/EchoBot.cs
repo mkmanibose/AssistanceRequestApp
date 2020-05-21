@@ -1,35 +1,40 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using AssistanceRequestApp.DL.Interface;
-using AssistanceRequestApp.Models.UserDefinedModels;
-using EchoBot.Models;
-using EchoBot.WebClientExtension;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.AI.QnA;
-using Microsoft.Bot.Schema;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Data;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-
 namespace Microsoft.BotBuilderSamples.Bots
 {
+    using AssistanceRequestApp.DL.Interface;
+    using AssistanceRequestApp.Models.UserDefinedModels;
+    using global::EchoBot.Models;
+    using Microsoft.Bot.Builder;
+    using Microsoft.Bot.Builder.AI.QnA;
+    using Microsoft.Bot.Schema;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Xml.Linq;
+
+    /// <summary>
+    /// Defines the <see cref="EchoBot" />.
+    /// </summary>
     public class EchoBot : ActivityHandler
     {
+        /// <summary>
+        /// Gets the EchoBotQnA.
+        /// </summary>
         public QnAMaker EchoBotQnA { get; private set; }
+
+        /// <summary>
+        /// Gets the Configuration.
+        /// </summary>
         public IConfiguration Configuration { get; }
 
         /// <summary>
@@ -47,8 +52,23 @@ namespace Microsoft.BotBuilderSamples.Bots
         /// </summary>
         private readonly List<DetailRequestModel> lstDetailRequestModels = new List<DetailRequestModel>();
 
+        /// <summary>
+        /// Defines the inProgressStatuses.
+        /// </summary>
         private readonly List<string> inProgressStatuses = new List<string>() { "InProgress", "Open", "Submitted" };
 
+        /// <summary>
+        /// Defines the thanksRegards.
+        /// </summary>
+        private readonly string thanksRegards = Environment.NewLine + "Thanks & Regards!" + Environment.NewLine + "Frameworks & Services Team";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EchoBot"/> class.
+        /// </summary>
+        /// <param name="endpoint">The endpoint<see cref="QnAMakerEndpoint"/>.</param>
+        /// <param name="configuration">The configuration<see cref="IConfiguration"/>.</param>
+        /// <param name="logger">The logger<see cref="ILogger{EchoBot}"/>.</param>
+        /// <param name="context">The context<see cref="IRequestDLRepository"/>.</param>
         public EchoBot(QnAMakerEndpoint endpoint, IConfiguration configuration, ILogger<EchoBot> logger, IRequestDLRepository context)
         {
             EchoBotQnA = new QnAMaker(endpoint);
@@ -58,16 +78,29 @@ namespace Microsoft.BotBuilderSamples.Bots
             lstDetailRequestModels = requestDLRepository.GetAllRequests();
         }
 
+        /// <summary>
+        /// The OnMessageActivityAsync.
+        /// </summary>
+        /// <param name="turnContext">The turnContext<see cref="ITurnContext{IMessageActivity}"/>.</param>
+        /// <param name="cancellationToken">The cancellationToken<see cref="CancellationToken"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             await AccessQnAMaker(turnContext, cancellationToken);
         }
 
+        /// <summary>
+        /// The OnMembersAddedAsync.
+        /// </summary>
+        /// <param name="membersAdded">The membersAdded<see cref="IList{ChannelAccount}"/>.</param>
+        /// <param name="turnContext">The turnContext<see cref="ITurnContext{IConversationUpdateActivity}"/>.</param>
+        /// <param name="cancellationToken">The cancellationToken<see cref="CancellationToken"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             try
             {
-                var welcomeText = "Hello and welcome!";
+                string welcomeText = "Hi, How May Help you!";
                 foreach (var member in membersAdded)
                 {
                     if (member.Id != turnContext.Activity.Recipient.Id)
@@ -83,6 +116,13 @@ namespace Microsoft.BotBuilderSamples.Bots
             }
         }
 
+        /// <summary>
+        /// The GetAnswers.
+        /// </summary>
+        /// <param name="questionText">The questionText<see cref="string"/>.</param>
+        /// <param name="relatedEnvironment">The relatedEnvironment<see cref="string"/>.</param>
+        /// <param name="natureOfRequest">The natureOfRequest<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private string GetAnswers(string questionText, string relatedEnvironment, string natureOfRequest)
         {
             string searchAnswer = string.Empty;
@@ -102,13 +142,20 @@ namespace Microsoft.BotBuilderSamples.Bots
             return searchAnswer;
         }
 
+        /// <summary>
+        /// The GetInProgressRequests.
+        /// </summary>
+        /// <param name="questionText">The questionText<see cref="string"/>.</param>
+        /// <param name="relatedEnvironment">The relatedEnvironment<see cref="string"/>.</param>
+        /// <param name="natureOfRequest">The natureOfRequest<see cref="string"/>.</param>
+        /// <returns>The <see cref="string"/>.</returns>
         private string GetInProgressRequests(string questionText, string relatedEnvironment, string natureOfRequest)
         {
             string searchAnswer = string.Empty;
             try
             {
                 searchAnswer = Convert.ToString(lstDetailRequestModels.Where
-                   (r => inProgressStatuses.Contains(r.Status)//r.Status.Equals("InProgress") 
+                   (r => inProgressStatuses.Contains(r.Status)
                    && r.DateCompleted == null && r.ResolutionComments == null
                     && r.RelatedEnvironment.ToString().ToLower().Equals(relatedEnvironment.ToLower()) && r.NatureofRequest.ToString().ToLower().Equals(natureOfRequest.ToLower()) && r.DescriptionofRequest.ToString().ToLower().Contains(questionText.ToLower()))
                     .OrderByDescending(o => o.CreatedDate)
@@ -122,6 +169,12 @@ namespace Microsoft.BotBuilderSamples.Bots
             return searchAnswer;
         }
 
+        /// <summary>
+        /// The AccessQnAMaker.
+        /// </summary>
+        /// <param name="turnContext">The turnContext<see cref="ITurnContext{IMessageActivity}"/>.</param>
+        /// <param name="cancellationToken">The cancellationToken<see cref="CancellationToken"/>.</param>
+        /// <returns>The <see cref="Task"/>.</returns>
         private async Task AccessQnAMaker(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             try
@@ -205,7 +258,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                             if (QnAForEnvironment.Answer.Equals("Is your application New or Old?"))
                             {
                                 if (QnAForEnvironment.Question.Equals("1) .NET") || QnAForEnvironment.Question.Equals("2) Java") || QnAForEnvironment.Question.Equals("3) Python") || QnAForEnvironment.Question.Equals("4) Mainframe"))
-                                {                                    
+                                {
                                     Startup.KickStartRequest.DomainName = QnAForEnvironment.Question.Remove(0, 3);
                                 }
                             }
@@ -253,7 +306,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                     }
                     else
                     {
-                        var hrefLink = XElement.Parse("<th><a href=\"https://kickstartassistancerequestapp.azurewebsites.net/Request\">New Request</a></th>")
+                        var hrefLink = XElement.Parse("<span><a href=\"https://kickstartassistancerequest.azurewebsites.net/Request/CreateEditRequest\">New Request</a></span>")
                                         .Descendants("a")
                                         .Select(x => x.Attribute("href").Value)
                                         .FirstOrDefault();
@@ -270,7 +323,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                     var answer = GetAnswers(turnContext.Activity.Text, Startup.Environment, Startup.NatureOfRequest);
                                     if (!string.IsNullOrWhiteSpace(answer))
                                     {
-                                        var replyText = $"Here is resolution steps: {answer}";
+                                        string replyText = $"Here is resolution steps: {answer}" + thanksRegards;
                                         await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                         Startup.Environment = null;
                                         Startup.NatureOfRequest = null;
@@ -281,7 +334,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         var inProgressRequests = GetInProgressRequests(turnContext.Activity.Text, Startup.Environment, Startup.NatureOfRequest);
                                         if (!string.IsNullOrWhiteSpace(inProgressRequests))
                                         {
-                                            var replyText = $"Already request has been raised with similar context : {inProgressRequests}";
+                                            string replyText = $"Already request has been raised with similar context : {inProgressRequests}" + thanksRegards;
                                             await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                             Startup.Environment = null;
                                             Startup.NatureOfRequest = null;
@@ -289,17 +342,17 @@ namespace Microsoft.BotBuilderSamples.Bots
                                         }
                                         else
                                         {
-                                            var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
+                                            string defaultText = $"We could not find the suitable resolution to you, Please raise new request." + Environment.NewLine + hrefLink + thanksRegards;
                                             await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                             Startup.Environment = null;
                                             Startup.NatureOfRequest = null;
-                                            Startup.QnAs = new List<QnA>();                                            
+                                            Startup.QnAs = new List<QnA>();
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
+                                    string defaultText = $"We could not find the suitable resolution to you, Please raise new request." + Environment.NewLine + hrefLink + thanksRegards;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                     Startup.Environment = null;
                                     Startup.NatureOfRequest = null;
@@ -312,24 +365,8 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 Startup.KickStartRequest.ApplicationName = string.Concat(applicationQnA.Answer.Where(c => !char.IsWhiteSpace(c)));
                                 if (!string.IsNullOrWhiteSpace(Startup.KickStartRequest.DomainName) && !string.IsNullOrWhiteSpace(Startup.KickStartRequest.TypeofApplication))
                                 {
-                                    string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net/names.asp?typeofapplication={0}&applicationname={1}&domainname={2}", Startup.KickStartRequest.TypeofApplication.ToLower(), Startup.KickStartRequest.ApplicationName.ToLower(), Startup.KickStartRequest.DomainName.ToLower());
-                                    //string kickstartURL = string.Format("https://kickstartassistancerequestapp.azurewebsites.net");//, //Startup.KickStartRequest.ApplicationName.ToLower()+
-                                    //    //"azure.zip"); ;
-                                    //WebClientExt webclient = new WebClientExt();
-                                    //webclient.PostParam = new NameValueCollection();
-                                    //webclient.PostParam["typeofapplication"] = Startup.KickStartRequest.ApplicationName.ToLower();
-                                    //webclient.PostParam["applicationname"] = Startup.KickStartRequest.ApplicationName.ToLower();
-                                    //webclient.PostParam["domainname"] = Startup.KickStartRequest.DomainName.ToLower();
-                                    //webclient.DownloadFile(new Uri(kickstartURL), @"C:\AssistanceRequestApp\AssistanceRequestApp\AssistanceRequestApp.Bot\EchoBotZipFiles\azure.zip");
-
-                                    WebClient webClient = new WebClient();
-                                    webClient.Headers.Add("Accept: text/html, application/xhtml+xml, */*");
-                                    webClient.Headers.Add("User-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
-                                    webClient.DownloadFileAsync(new Uri(kickstartURL), @"C\deleteme\azure.zip");
-
-
-
-                                    var replyText = $"Please use the below url to kickstart your application : " + kickstartURL;
+                                    string kickstartURL = string.Format("https://kickstartassistancerequest.azurewebsites.net/Request/KickstartApplicationDetails?typeofapplication={0}&applicationname={1}&domain={2}", Startup.KickStartRequest.TypeofApplication.ToLower().Replace(" ", string.Empty), Startup.KickStartRequest.ApplicationName.ToLower().Replace(" ", string.Empty), Startup.KickStartRequest.DomainName.ToLower().Replace(" ", string.Empty));
+                                    string replyText = $"Please use the below url to kickstart your application : " + Environment.NewLine + kickstartURL + thanksRegards;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(replyText), cancellationToken);
                                     Startup.Environment = null;
                                     Startup.NatureOfRequest = null;
@@ -337,7 +374,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                                 }
                                 else
                                 {
-                                    var defaultText = $"Some error occured, Please try after some time.";
+                                    string defaultText = $"Some error occured, Please try after some time." + thanksRegards;
                                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                                     Startup.Environment = null;
                                     Startup.NatureOfRequest = null;
@@ -347,7 +384,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                         }
                         else
                         {
-                            var defaultText = $"We could not find the suitable resolution to you, Please raise new request. Thanks " + hrefLink;
+                            string defaultText = $"We could not find the suitable resolution to you, Please raise new request." + Environment.NewLine + hrefLink + Environment.NewLine + thanksRegards;
                             await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                             Startup.Environment = null;
                             Startup.NatureOfRequest = null;
@@ -357,7 +394,7 @@ namespace Microsoft.BotBuilderSamples.Bots
                 }
                 else
                 {
-                    var defaultText = $"Thanks for reaching out to us, We will get back to you shortly";
+                    string defaultText = $"Thanks for reaching out to us, We will get back to you shortly" + thanksRegards;
                     await turnContext.SendActivityAsync(MessageFactory.Text(defaultText, defaultText), cancellationToken);
                     Startup.Environment = null;
                     Startup.NatureOfRequest = null;

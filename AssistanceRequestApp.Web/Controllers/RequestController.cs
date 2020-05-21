@@ -3,12 +3,15 @@
     using AssistanceRequestApp.DL.Interface;
     using AssistanceRequestApp.Models.UserDefinedModels;
     using AssistanceRequestApp.Web.Models;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
+    using System.IO.Compression;
     using System.Linq;
     using System.Threading.Tasks;
 
@@ -33,16 +36,25 @@
         private readonly List<DetailRequestModel> lstDetailRequestModels = new List<DetailRequestModel>();
 
         /// <summary>
+        /// Defines the hostingEnvironment.
+        /// </summary>
+        [Obsolete]
+        private readonly IHostingEnvironment hostingEnvironment;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RequestController"/> class.
         /// </summary>
         /// <param name="logger">The logger<see cref="ILogger{RequestController}"/>.</param>
         /// <param name="context">The context<see cref="IRequestDLRepository"/>.</param>
-        public RequestController(ILogger<RequestController> logger, IRequestDLRepository context)
+        /// <param name="hostingEnvironment">The hostingEnvironment<see cref="IHostingEnvironment"/>.</param>
+        [Obsolete]
+        public RequestController(ILogger<RequestController> logger, IRequestDLRepository context, IHostingEnvironment hostingEnvironment)
         {
             try
             {
                 this.logger = logger;
                 this.requestDLRepository = context;
+                this.hostingEnvironment = hostingEnvironment;
                 lstDetailRequestModels = requestDLRepository.GetAllRequests();
             }
             catch (Exception ex)
@@ -301,6 +313,50 @@
                 logger.LogError("Exception in DeleteRequest " + ex.Message);
                 logger.LogError(ex.StackTrace);
                 return View();
+            }
+        }
+
+        /// <summary>
+        /// The KickstartApplicationDetails.
+        /// </summary>
+        /// <param name="typeofapplication">The typeofapplication<see cref="string"/>.</param>
+        /// <param name="applicationname">The applicationname<see cref="string"/>.</param>
+        /// <param name="domain">The domain<see cref="string"/>.</param>
+        /// <returns>The <see cref="FileResult"/>.</returns>
+        [HttpGet]
+        [Obsolete]
+        public FileResult KickstartApplicationDetails(string typeofapplication, string applicationname, string domain)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(typeofapplication) && !string.IsNullOrWhiteSpace(applicationname) && !string.IsNullOrWhiteSpace(domain))
+                {
+                    string fileName = DateTime.Now.ToString("yyyyMMddhhmmss") + applicationname.ToString().ToLower();
+                    using MemoryStream memoryStream = new MemoryStream();
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
+                    {
+                        var kickstartFile = archive.CreateEntry(fileName + ".txt");
+                        using var entryStream = kickstartFile.Open();
+                        using StreamWriter streamWriter = new StreamWriter(entryStream);
+                        streamWriter.Write("Type of Application :" + typeofapplication + Environment.NewLine + "Application Name :" + applicationname + Environment.NewLine + "Domain Name :" + domain);
+                    }
+                    var webRoot = hostingEnvironment.WebRootPath;
+                    fileName += ".zip";
+                    using (var fileStream = new FileStream(System.IO.Path.Combine(webRoot, fileName), FileMode.Create))
+                    {
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        memoryStream.CopyTo(fileStream);
+                    }
+                    System.IO.File.Delete(System.IO.Path.Combine(webRoot, fileName));
+                    return File(memoryStream.ToArray(), "application/zip", fileName);
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception in KickstartApplicationDetails " + ex.Message);
+                logger.LogError(ex.StackTrace);
+                return null;
             }
         }
 
